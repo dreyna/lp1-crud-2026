@@ -17,6 +17,13 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria create(Categoria categoria) {
+        if(categoria.getNombre() != null){
+            categoria.setNombre(categoria.getNombre().trim());
+        }
+        boolean categoriaExists = categoriaRepository.existsByNombre(categoria.getNombre());
+        if(categoria.getId() == null && categoriaExists){
+            throw new RuntimeException("Ya existe la categoria con ese nombre");
+        }
         return categoriaRepository.save(categoria);
     }
 

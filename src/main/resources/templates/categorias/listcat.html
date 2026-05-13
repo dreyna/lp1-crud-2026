@@ -27,28 +27,12 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
-                    <th width="180">Acciones</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
 
-                <tbody>
-                <tr th:each="cat : ${cats}">
-                    <td th:text="${cat.id}"></td>
-                    <td th:text="${cat.nombre}"></td>
-                    <td>
-                        <button class="btn btn-warning btn-sm"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modalEditar' + ${cat.id}">
-                            Editar
-                        </button>
+                <tbody id="tableCategoria">
 
-                        <button class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modalEliminar' + ${cat.id}">
-                            Eliminar
-                        </button>
-                    </td>
-                </tr>
                 </tbody>
             </table>
 
@@ -61,7 +45,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <form th:action="@{/categorias/save}" method="post">
+            <form th:action="@{/categorias/save}" method="post" th:object="${categoria}">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Nueva Categoría</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -72,8 +56,8 @@
                     <input type="text"
                            name="nombre"
                            class="form-control"
-                           placeholder="Ingrese el nombre"
-                           required>
+                           placeholder="Ingrese el nombre" id="nombre" pattern="[A-Za-z]+" required>
+
                 </div>
 
                 <div class="modal-footer">
@@ -113,7 +97,7 @@
                                class="form-control"
                                th:value="${cat.nombre}"
                                required>
-                    </div>
+                      </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -164,6 +148,38 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function (){
+       listarCategoria();
+    });
+    function listarCategoria(){
+        fetch('/categorias/listar')
+            .then(response => response.json())
+            .then(response =>{
+                let tabla = document.getElementById("tableCategoria");
 
+                tabla.innerHTML='';
+                response.data.forEach(categoria=>{
+                    tabla.innerHTML += `
+                    <tr>
+                        <td>${categoria.id}</td>
+                        <td>${categoria.nombre}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editCategoria(${categoria.id})">EDITAR</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCategoria(${categoria.id})">ELIMINAR</button>
+                        </td>`;
+                });
+            });
+    }
+    function abrirModal(){
+        limpiarFormulario();
+        document.getElementById('tituloModal').innerText = 'Nueva Categoria';
+    }
+    function limpiarFormulario(){
+        document.getElementById('id').value='';
+        document.getElementById('nombre').value ='';
+        limpiarErrores();
+    }
+</script>
 </body>
 </html>
